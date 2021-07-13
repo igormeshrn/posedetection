@@ -19,6 +19,10 @@
             android:id="@+id/fragment_select_to_fragment_pose_detection"
             app:destination="@+id/fragment_pose_detection"/>
 
+        <action
+            android:id="@+id/fragment_select_to_fragment_face_detection"
+            app:destination="@+id/fragment_face_detection"/>
+
     </fragment>
 
     <fragment
@@ -31,6 +35,12 @@
         android:id="@+id/fragment_pose_detection"
         android:name="ru.igormesharin.posedetection.fragments.PoseDetectionFragment"
         android:label="PoseDetectionFragment"
+        tools:layout="@layout/fragment_pose_detection"/>
+
+    <fragment
+        android:id="@+id/fragment_face_detection"
+        android:name="ru.igormesharin.posedetection.fragments.FaceDetection"
+        android:label="FaceDetectionFragment"
         tools:layout="@layout/fragment_pose_detection"/>
 
 </navigation>

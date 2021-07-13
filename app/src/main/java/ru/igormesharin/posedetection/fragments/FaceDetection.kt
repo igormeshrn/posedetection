@@ -2,7 +2,6 @@ package ru.igormesharin.posedetection.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Size
 import android.view.LayoutInflater
@@ -17,17 +16,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.pose.Pose
-import com.google.mlkit.vision.pose.PoseDetection
-import com.google.mlkit.vision.pose.PoseDetector
-import com.google.mlkit.vision.pose.PoseLandmark
-import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
+import com.google.mlkit.vision.face.*
+import com.google.mlkit.vision.face.FaceDetection
 import ru.igormesharin.posedetection.databinding.CameraFragmentBinding
+import ru.igormesharin.posedetection.utils.DrawFace
 
-class PoseDetectionFragment : Fragment() {
+class FaceDetection : Fragment() {
 
     private lateinit var binding: CameraFragmentBinding
-    private lateinit var poseDetector: PoseDetector
+    private lateinit var faceDetector: FaceDetector
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var safeContext: Context
 
@@ -43,10 +40,10 @@ class PoseDetectionFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configurePoseDetector()
+        configureFaceDetector()
     }
 
-    private fun configurePoseDetector() {
+    private fun configureFaceDetector() {
         cameraProviderFuture = ProcessCameraProvider.getInstance(safeContext)
 
         cameraProviderFuture.addListener({
@@ -54,11 +51,15 @@ class PoseDetectionFragment : Fragment() {
             bindPreview(cameraProvider)
         }, ContextCompat.getMainExecutor(safeContext))
 
-        val customPoseDetectionOptions = PoseDetectorOptions.Builder()
-            .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
+        val customFaceDetectionOptions = FaceDetectorOptions.Builder()
+            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+            .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+            .enableTracking()
+            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
             .build()
 
-        poseDetector = PoseDetection.getClient(customPoseDetectionOptions)
+        faceDetector = FaceDetection.getClient(customFaceDetectionOptions)
     }
 
     @SuppressLint("UnsafeExperimentalUsageError", "ShowToast")
@@ -67,7 +68,7 @@ class PoseDetectionFragment : Fragment() {
             .build()
 
         val cameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+            .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
             .build()
 
         preview.setSurfaceProvider(binding.finder.createSurfaceProvider())
@@ -86,17 +87,30 @@ class PoseDetectionFragment : Fragment() {
 
             if (image != null) {
                 val processImage = InputImage.fromMediaImage(image, rotationDegrees)
-                poseDetector
+                val views: MutableList<View> = mutableListOf()
+                faceDetector
                     .process(processImage)
-                    .addOnSuccessListener { pose ->
-                        if (pose.allPoseLandmarks.isNotEmpty()) {
-                            if (isHandAboveHead(pose)) {
-                                binding.root.setBackgroundColor(Color.GREEN)
-                            } else {
-                                binding.root.setBackgroundColor(Color.WHITE)
+                    .addOnSuccessListener { faces ->
+                        if(binding.finder.childCount > 1){
+                            binding.finder.removeViews(1, binding.finder.childCount - 1)
+                        }
+                        if (faces.isNotEmpty()) {
+                            faces.forEach { face ->
+                                val element: DrawFace
+                                if (face.leftEyeOpenProbability != null && face.rightEyeOpenProbability != null) {
+                                    if (face.leftEyeOpenProbability < 0.1f || face.rightEyeOpenProbability < 0.1f) {
+                                        element = DrawFace(safeContext, face.boundingBox, false)
+                                    } else {
+                                        element = DrawFace(safeContext, face.boundingBox, true)
+                                    }
+                                } else {
+                                    element = DrawFace(safeContext, face.boundingBox, true)
+                                }
+                                binding.finder.addView(element)
+                                views.add(element)
+
                             }
                         }
-
                         imageProxy.close()
                     }
                     .addOnFailureListener { e ->
@@ -107,12 +121,4 @@ class PoseDetectionFragment : Fragment() {
 
         cameraProvider.bindToLifecycle(this as LifecycleOwner, cameraSelector, imageAnalysis, preview)
     }
-
-    private fun isHandAboveHead(pose: Pose): Boolean {
-        return pose.getPoseLandmark(PoseLandmark.LEFT_WRIST).position.y <
-        pose.getPoseLandmark(PoseLandmark.LEFT_EAR).position.y ||
-        pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST).position.y <
-        pose.getPoseLandmark(PoseLandmark.RIGHT_EAR).position.y
-    }
-
 }

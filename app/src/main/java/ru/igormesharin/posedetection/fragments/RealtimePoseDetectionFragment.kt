@@ -19,13 +19,12 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
+import ru.igormesharin.posedetection.databinding.CameraFragmentBinding
 import ru.igormesharin.posedetection.utils.Draw
-import ru.igormesharin.posedetection.databinding.FragmentPoseDetectionBinding
-import ru.igormesharin.posedetection.databinding.FragmentRealtimePoseDetectionBinding
 
 class RealtimePoseDetectionFragment : Fragment() {
 
-    private lateinit var binding: FragmentRealtimePoseDetectionBinding
+    private lateinit var binding: CameraFragmentBinding
     private lateinit var poseDetector: PoseDetector
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var safeContext: Context
@@ -36,7 +35,7 @@ class RealtimePoseDetectionFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentRealtimePoseDetectionBinding.inflate(inflater, container, false)
+        binding = CameraFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 

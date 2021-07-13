@@ -6,12 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import ru.igormesharin.posedetection.R
 import ru.igormesharin.posedetection.databinding.FragmentSelectBinding
 
 class SelectFragment : Fragment() {
 
     private lateinit var binding: FragmentSelectBinding
+    private lateinit var adapter: SelectAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSelectBinding.inflate(inflater, container, false)
@@ -20,16 +22,15 @@ class SelectFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configureButtons()
+        configureRecyclerView()
     }
 
-    private fun configureButtons() {
-        binding.btnRealtimePoseDetection.setOnClickListener {
-            findNavController().navigate(R.id.fragment_select_to_fragment_realtime_pose_detection)
-        }
-        binding.btnPoseDetection.setOnClickListener {
-            findNavController().navigate(R.id.fragment_select_to_fragment_pose_detection)
-        }
+    private fun configureRecyclerView() {
+        adapter = SelectAdapter()
+        binding.rvChoose.adapter = adapter
+        val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        binding.rvChoose.layoutManager = layoutManager
+        adapter.addData()
     }
 
 }
