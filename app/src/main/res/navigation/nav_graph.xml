@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fragment_select"
-        android:name="ru.igormesharin.posedetection.fragments.SelectFragment"
+        android:name="ru.igormesharin.posedetection.fragments.select.SelectFragment"
         android:label="SelectFragment"
         tools:layout="@layout/fragment_select">
 
@@ -23,24 +23,54 @@
             android:id="@+id/fragment_select_to_fragment_face_detection"
             app:destination="@+id/fragment_face_detection"/>
 
+        <action
+            android:id="@+id/fragment_select_to_fragment_accurate"
+            app:destination="@+id/fragment_realtime_pose_detection_accurate"/>
+
+        <action
+            android:id="@+id/fragment_select_to_fragment_face_recognition"
+            app:destination="@+id/fragment_face_recognition"/>
+
+        <action
+            android:id="@+id/fragment_select_to_fragment_pose_detection_repeat"
+            app:destination="@+id/pose_detector_repeat"/>
+
     </fragment>
 
     <fragment
         android:id="@+id/fragment_realtime_pose_detection"
-        android:name="ru.igormesharin.posedetection.fragments.RealtimePoseDetectionFragment"
+        android:name="ru.igormesharin.posedetection.fragments.pose.RealtimePoseDetectionFragment"
         android:label="RealtimePoseDetectionFragment"
-        tools:layout="@layout/fragment_realtime_pose_detection"/>
+        tools:layout="@layout/camera_fragment"/>
 
     <fragment
         android:id="@+id/fragment_pose_detection"
-        android:name="ru.igormesharin.posedetection.fragments.PoseDetectionFragment"
+        android:name="ru.igormesharin.posedetection.fragments.pose.PoseDetectionFragment"
         android:label="PoseDetectionFragment"
-        tools:layout="@layout/fragment_pose_detection"/>
+        tools:layout="@layout/camera_fragment"/>
 
     <fragment
         android:id="@+id/fragment_face_detection"
-        android:name="ru.igormesharin.posedetection.fragments.FaceDetection"
+        android:name="ru.igormesharin.posedetection.fragments.face.FaceDetection"
         android:label="FaceDetectionFragment"
-        tools:layout="@layout/fragment_pose_detection"/>
+        tools:layout="@layout/camera_fragment"/>
+
+    <fragment
+        android:id="@+id/fragment_realtime_pose_detection_accurate"
+        android:name="ru.igormesharin.posedetection.fragments.pose.RealtimePoseDetectionAccurateFragment"
+        android:label="RealtimePoseDetectionAccurateFragment"
+        tools:layout="@layout/camera_fragment"/>
+
+    <fragment
+        android:id="@+id/fragment_face_recognition"
+        android:name="ru.igormesharin.posedetection.fragments.face.FaceRecognitionFragment"
+        android:label="FaceRecognition"
+        tools:layout="@layout/fragment_face_recognition"/>
+
+    <fragment
+        android:id="@+id/pose_detector_repeat"
+        android:name="ru.igormesharin.posedetection.fragments.pose.PoseDetectorRepeatFragment"
+        android:label="PoseDetectorRepeatFragment"
+        tools:layout="@layout/fragment_pose_recognition"/>
 
 </navigation>

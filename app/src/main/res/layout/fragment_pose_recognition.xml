@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <ru.igormesharin.posedetection.utils.GraphicOverlay
+            android:id="@+id/graphic_overlay"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="@id/preview"
+            app:layout_constraintRight_toRightOf="@id/preview"
+            app:layout_constraintTop_toTopOf="@id/preview"
+            app:layout_constraintBottom_toBottomOf="@id/preview"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
