@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
@@ -30,6 +31,15 @@ class PoseDetectionFragment : Fragment() {
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var safeContext: Context
 
+    companion object {
+        private const val TAG = "PoseDetectionFragment"
+    }
+
+
+    /**
+     *  Callback functions
+     */
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         safeContext = context
@@ -45,6 +55,11 @@ class PoseDetectionFragment : Fragment() {
         configurePoseDetector()
     }
 
+
+    /**
+     *  Private functions
+     */
+
     private fun configurePoseDetector() {
         cameraProviderFuture = ProcessCameraProvider.getInstance(safeContext)
 
@@ -52,12 +67,6 @@ class PoseDetectionFragment : Fragment() {
             val cameraProvider = cameraProviderFuture.get()
             bindPreview(cameraProvider)
         }, ContextCompat.getMainExecutor(safeContext))
-
-//        val customPoseDetectionOptions = PoseDetectorOptions.Builder()
-//            .setDetectorMode(PoseDetectorOptions.STREAM_MODE)
-//            .build()
-//
-//        poseDetector = PoseDetection.getClient(customPoseDetectionOptions)
     }
 
     @SuppressLint("UnsafeExperimentalUsageError", "ShowToast")
@@ -80,25 +89,16 @@ class PoseDetectionFragment : Fragment() {
             val rotationDegrees = imageProxy.imageInfo.rotationDegrees
             val image = imageProxy.image
 
-//            Log.d("PoseDetectionFragment", "Image: image width: ${image?.width}, image height: ${image?.height}")
-//            Log.d("PoseDetectionFragment", "Finder: width: ${binding.finder.width}, height: ${binding.finder.height}")
-
             if (image != null) {
                 val processImage = InputImage.fromMediaImage(image, rotationDegrees)
                 poseDetector
                     .process(processImage)
                     .addOnSuccessListener { pose ->
-                        if (pose.allPoseLandmarks.isNotEmpty()) {
-                            if (isHandAboveHead(pose)) {
-                                binding.root.setBackgroundColor(Color.GREEN)
-                            } else {
-                                binding.root.setBackgroundColor(Color.WHITE)
-                            }
-                        }
-
+                        processPose(pose)
                         imageProxy.close()
                     }
                     .addOnFailureListener { e ->
+                        Log.e(TAG, e.localizedMessage)
                         imageProxy.close()
                     }
             }
@@ -107,13 +107,21 @@ class PoseDetectionFragment : Fragment() {
         cameraProvider.bindToLifecycle(this as LifecycleOwner, cameraSelector, imageAnalysis, preview)
     }
 
+    private fun processPose(pose: Pose) {
+        if (pose.allPoseLandmarks.isNotEmpty()) {
+            if (isHandAboveHead(pose)) {
+                binding.root.setBackgroundColor(Color.GREEN)
+            } else {
+                binding.root.setBackgroundColor(Color.WHITE)
+            }
+        }
+    }
+
     private fun isHandAboveHead(pose: Pose): Boolean {
         return pose.getPoseLandmark(PoseLandmark.LEFT_WRIST).position.y <
         pose.getPoseLandmark(PoseLandmark.LEFT_EAR).position.y ||
         pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST).position.y <
         pose.getPoseLandmark(PoseLandmark.RIGHT_EAR).position.y
     }
-
-    data class PoseWithClassification(val pose: Pose, val classificationResult: List<String>)
 
 }

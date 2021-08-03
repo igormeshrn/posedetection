@@ -55,6 +55,15 @@ class FaceRecognitionFragment : Fragment() {
     // Number of images in which no faces were detected.
     private var numImagesWithNoFaces = 0
 
+    companion object {
+        private const val TAG = "FaceRecognitionFragment"
+    }
+
+
+    /**
+     *  Callback functions
+     */
+
     override fun onAttach(context: Context) {
         safeContext = context
         super.onAttach(context)
@@ -95,6 +104,11 @@ class FaceRecognitionFragment : Fragment() {
             File(requireActivity().getExternalFilesDir(null).toString() + "/images")
         )
     }
+
+
+    /**
+     *  Private functions
+     */
 
     @SuppressLint("UnsafeExperimentalUsageError", "ShowToast")
     private fun bindPreview(cameraProvider: ProcessCameraProvider) {

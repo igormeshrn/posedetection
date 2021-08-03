@@ -2,7 +2,9 @@ package ru.igormesharin.posedetection.fragments.pose
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.nfc.Tag
 import android.os.Bundle
+import android.util.Log
 import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
@@ -23,12 +26,20 @@ import ru.igormesharin.posedetection.databinding.CameraFragmentBinding
 import ru.igormesharin.posedetection.utils.PoseLinesView
 
 class RealtimePoseDetectionAccurateFragment : Fragment() {
+
     private lateinit var binding: CameraFragmentBinding
     private lateinit var poseDetector: PoseDetector
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var safeContext: Context
 
-//    private var poseClassifierProcessor: PoseClassifierProcessor? = null
+    companion object {
+        private const val TAG = "RealtimePoseDetectionAccurateFragment"
+    }
+
+
+    /**
+     *  Callback functions
+     */
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -44,6 +55,11 @@ class RealtimePoseDetectionAccurateFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         configurePoseDetector()
     }
+
+
+    /**
+     *  Private functions
+     */
 
     private fun configurePoseDetector() {
         cameraProviderFuture = ProcessCameraProvider.getInstance(safeContext)
@@ -74,51 +90,41 @@ class RealtimePoseDetectionAccurateFragment : Fragment() {
         val imageAnalysis = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .setTargetResolution(Size(binding.finder.width, binding.finder.height))
-//            .setTargetResolution(Size(480, 640))
             .build()
 
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(safeContext)) { imageProxy ->
             val rotationDegrees = imageProxy.imageInfo.rotationDegrees
             val image = imageProxy.image
 
-//            Log.d("PoseDetectionFragment", "Image: image width: ${image?.width}, image height: ${image?.height}")
-//            Log.d("PoseDetectionFragment", "Finder: width: ${binding.finder.width}, height: ${binding.finder.height}")
-
             if (image != null) {
                 val processImage = InputImage.fromMediaImage(image, rotationDegrees)
-//                val factor = binding.finder.width / image.width
                 poseDetector
                     .process(processImage)
                     .addOnSuccessListener { pose ->
-//                        if (poseClassifierProcessor == null) {
-//                            poseClassifierProcessor = PoseClassifierProcessor(context, true)
-//                        }
-//
-//                        val classificationResult: List<String> = poseClassifierProcessor!!.getPoseResult(pose)
-//
-//                        Log.d("PoseDetectionFragment", "continueWith")
-//                        Log.d("PoseDetectionFragment", classificationResult.toString())
-
-                        if (binding.finder.childCount > 1) {
-                            binding.finder.removeViewAt(1)
-                        }
-                        if (pose.allPoseLandmarks.isNotEmpty()) {
-                            if (binding.finder.childCount > 1) {
-                                binding.finder.removeViewAt(1)
-                            }
-
-                            val element = PoseLinesView(safeContext, pose, factor = 1)
-                            binding.finder.addView(element)
-                        }
+                        processPose(pose)
                         imageProxy.close()
                     }
                     .addOnFailureListener { e ->
+                        Log.d(TAG, e.localizedMessage)
                         imageProxy.close()
                     }
-
             }
         }
 
         cameraProvider.bindToLifecycle(this as LifecycleOwner, cameraSelector, imageAnalysis, preview)
+    }
+
+    private fun processPose(pose: Pose) {
+        if (binding.finder.childCount > 1) {
+            binding.finder.removeViewAt(1)
+        }
+        if (pose.allPoseLandmarks.isNotEmpty()) {
+            if (binding.finder.childCount > 1) {
+                binding.finder.removeViewAt(1)
+            }
+
+            val element = PoseLinesView(safeContext, pose, factor = 1)
+            binding.finder.addView(element)
+        }
     }
 }

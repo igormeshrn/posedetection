@@ -31,6 +31,15 @@ class PoseDetectorRepeatFragment : Fragment() {
 
     private var imageProcessor: VisionImageProcessor? = null
 
+    companion object {
+        private const val TAG = "PoseDetectorRepeatFragment"
+    }
+
+
+    /**
+     *  Callback functions
+     */
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         safeContext = context
@@ -45,6 +54,11 @@ class PoseDetectorRepeatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         startCamera()
     }
+
+
+    /**
+     *  Private functions
+     */
 
     private fun startCamera() {
         cameraProviderFuture = ProcessCameraProvider.getInstance(safeContext)
@@ -75,13 +89,9 @@ class PoseDetectorRepeatFragment : Fragment() {
 
             imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(safeContext)) { imageProxy ->
                 try {
-//                    Log.d("DEBUGGG", "Class: ${this.javaClass.simpleName}. Trying to call imageProcessor.processImageProxy()}")
                     imageProcessor!!.processImageProxy(imageProxy, binding.graphicOverlay)
                 } catch (e: Exception) {
-                    Log.e(
-                        "PoseDetectorRepeatFragment",
-                        "Failed to process image. Error: " + e.localizedMessage
-                    )
+                    Log.e(TAG, "Failed to process image. Error: " + e.localizedMessage)
                     Toast.makeText(
                         safeContext,
                         e.localizedMessage,

@@ -30,7 +30,7 @@ class FrameAnalyser(private var context: Context, private var boundingBoxOverlay
     // Configure the FirebaseVisionFaceDetector
     private val realTimeOpts = FaceDetectorOptions.Builder()
         .enableTracking()
-        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
         .build()
     private val detector = FaceDetection.getClient(realTimeOpts)
 
@@ -122,8 +122,7 @@ class FrameAnalyser(private var context: Context, private var boundingBoxOverlay
                             if (metricToBeUsed == "cosine") {
                                 Log.d("Model", "Using cosine similarity.")
                                 p.add(cosineSimilarity(subject, faceList[i].second))
-                            }
-                            else {
+                            } else {
                                 Log.d("Model", "Using L2 norm.")
                                 p.add(L2Norm(
                                     normalizeVector(subject),
@@ -158,10 +157,9 @@ class FrameAnalyser(private var context: Context, private var boundingBoxOverlay
                     if ( metricToBeUsed == "cosine" ) {
                         // In case of cosine similarity, choose the highest value.
                         bestScoreUserName = names[avgScores.indexOf(avgScores.maxOrNull()!!)]
-                    }
-                    else {
+                    } else {
                         // In case of L2 norm, choose the lowest value.
-                        bestScoreUserName = names[ avgScores.indexOf(avgScores.minOrNull()!!)]
+                        bestScoreUserName = names[avgScores.indexOf(avgScores.minOrNull()!!)]
                     }
 
                     Log.d( "Model" , "Person identified as ${bestScoreUserName}" )

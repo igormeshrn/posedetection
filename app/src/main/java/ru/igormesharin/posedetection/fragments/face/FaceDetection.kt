@@ -29,6 +29,18 @@ class FaceDetection : Fragment() {
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private lateinit var safeContext: Context
 
+    // List to hold face views
+    private val views: MutableList<View> = mutableListOf()
+
+    companion object {
+        private const val TAG = "FaceDetection"
+    }
+
+
+    /**
+     *  CALLBACK FUNCTIONS
+     */
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         safeContext = context
@@ -43,6 +55,11 @@ class FaceDetection : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         configureFaceDetector()
     }
+
+
+    /**
+     *  PRIVATE FUNCTIONS
+     */
 
     private fun configureFaceDetector() {
         cameraProviderFuture = ProcessCameraProvider.getInstance(safeContext)
@@ -83,45 +100,46 @@ class FaceDetection : Fragment() {
             val rotationDegrees = imageProxy.imageInfo.rotationDegrees
             val image = imageProxy.image
 
-//            Log.d("PoseDetectionFragment", "Image: image width: ${image?.width}, image height: ${image?.height}")
-//            Log.d("PoseDetectionFragment", "Finder: width: ${binding.finder.width}, height: ${binding.finder.height}")
-
             if (image != null) {
                 val processImage = InputImage.fromMediaImage(image, rotationDegrees)
-                val views: MutableList<View> = mutableListOf()
                 faceDetector
                     .process(processImage)
                     .addOnSuccessListener { faces ->
-                        if(binding.finder.childCount > 1){
-                            binding.finder.removeViews(1, binding.finder.childCount - 1)
-                        }
-                        if (faces.isNotEmpty()) {
-                            faces.forEach { face ->
-                                val element: FaceBoundsView
-                                if (face.leftEyeOpenProbability != null && face.rightEyeOpenProbability != null) {
-                                    if (face.leftEyeOpenProbability < 0.1f || face.rightEyeOpenProbability < 0.1f) {
-                                        element = FaceBoundsView(safeContext, face.boundingBox, false)
-                                    } else {
-                                        element = FaceBoundsView(safeContext, face.boundingBox, true)
-                                    }
-                                } else {
-                                    element = FaceBoundsView(safeContext, face.boundingBox, true)
-                                }
-                                binding.finder.addView(element)
-                                views.add(element)
-
-                            }
-                        }
+                        processFaces(faces)
                         imageProxy.close()
                     }
                     .addOnFailureListener { e ->
-                        Log.d("FaceDetection", e.localizedMessage)
+                        e.printStackTrace()
+                        Log.d(TAG, e.localizedMessage)
                         imageProxy.close()
                     }
             }
         }
 
         cameraProvider.bindToLifecycle(this as LifecycleOwner, cameraSelector, imageAnalysis, preview)
+    }
+
+    private fun processFaces(faces: List<Face>) {
+        if(binding.finder.childCount > 1){
+            binding.finder.removeViews(1, binding.finder.childCount - 1)
+        }
+        if (faces.isNotEmpty()) {
+            faces.forEach { face ->
+                val element: FaceBoundsView
+                if (face.leftEyeOpenProbability != null && face.rightEyeOpenProbability != null) {
+                    if (face.leftEyeOpenProbability < 0.1f || face.rightEyeOpenProbability < 0.1f) {
+                        element = FaceBoundsView(safeContext, face.boundingBox, false)
+                    } else {
+                        element = FaceBoundsView(safeContext, face.boundingBox, true)
+                    }
+                } else {
+                    element = FaceBoundsView(safeContext, face.boundingBox, true)
+                }
+                Log.i(TAG, "Drawing")
+                binding.finder.addView(element)
+                views.add(element)
+            }
+        }
     }
 
 }

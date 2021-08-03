@@ -35,6 +35,10 @@
             android:id="@+id/fragment_select_to_fragment_pose_detection_repeat"
             app:destination="@+id/pose_detector_repeat"/>
 
+        <action
+            android:id="@+id/fragment_select_to_fragment_face_matching"
+            app:destination="@+id/fragment_face_matching"/>
+
     </fragment>
 
     <fragment
@@ -72,5 +76,11 @@
         android:name="ru.igormesharin.posedetection.fragments.pose.PoseDetectorRepeatFragment"
         android:label="PoseDetectorRepeatFragment"
         tools:layout="@layout/fragment_pose_recognition"/>
+
+    <fragment
+        android:id="@+id/fragment_face_matching"
+        android:name="ru.igormesharin.posedetection.fragments.face.FaceMatchingFragment"
+        android:label="FaceMatchingFragment"
+        tools:layout="@layout/fragment_face_matching"/>
 
 </navigation>

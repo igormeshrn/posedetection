@@ -32,6 +32,7 @@ class SelectAdapter : RecyclerView.Adapter<SelectAdapter.SelectViewHolder>() {
         items.add(SelectItem("Realtime pose detection accurate", "High accuracy but low FPS"))
         items.add(SelectItem("Face recognition", "description..."))
         items.add(SelectItem("Pose detection with repeat", "Repeat counter for exercises"))
+        items.add(SelectItem("Face matching", "description..."))
     }
 
     inner class SelectViewHolder(var binding: LiChooseBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -48,6 +49,7 @@ class SelectAdapter : RecyclerView.Adapter<SelectAdapter.SelectViewHolder>() {
                     "Realtime pose detection accurate" -> it.findNavController().navigate(R.id.fragment_select_to_fragment_accurate)
                     "Face recognition" -> it.findNavController().navigate(R.id.fragment_select_to_fragment_face_recognition)
                     "Pose detection with repeat" -> it.findNavController().navigate(R.id.fragment_select_to_fragment_pose_detection_repeat)
+                    "Face matching" -> it.findNavController().navigate(R.id.fragment_select_to_fragment_face_matching)
                 }
             }
         }

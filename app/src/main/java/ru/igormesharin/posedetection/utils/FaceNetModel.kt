@@ -29,7 +29,7 @@ class FaceNetModel(context : Context) {
 
     // Image Processor for preprocessing input images.
     private val imageTensorProcessor = ImageProcessor.Builder()
-        .add( ResizeOp(imgSize, imgSize, ResizeOp.ResizeMethod.BILINEAR))
+        .add(ResizeOp(imgSize, imgSize, ResizeOp.ResizeMethod.BILINEAR))
         .add(NormalizeOp(127.5f,127.5f))
         .build()
 
